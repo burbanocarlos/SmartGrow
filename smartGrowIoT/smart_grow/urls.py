@@ -1,9 +1,12 @@
 
 from django.urls import path, include
 from . import views
-
+from .views import MySecureView, APIView
 from django.urls import re_path
 from django.contrib import admin
+#from .views import MyApiView
+
+
 app_name = 'smart_grow'
 urlpatterns = [
     path('', views.index, name='index'),
@@ -15,6 +18,9 @@ urlpatterns = [
     path('kasa_device/<int:kasa_device_id>/', views.kasa_device_detail, name='kasa_device_detail'),
     path('device_info/', views.device_info, name='device_info'),
     path('kasa_devices/', views.kasa_devices, name='kasa_devices'),
+    path('secure/', MySecureView.as_view(), name='secure'),
+    #path('my-api-view/', MyApiView.as_view(), name='my_api_view'),
+
     #path('devices/<int:device_id>/edit/', views.edit_device, name='edit_device'),
     #path('devices/<int:device_id>/delete/', views.delete_device, name='delete_device'),
 ]

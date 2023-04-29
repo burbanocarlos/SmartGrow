@@ -1,20 +1,25 @@
-from django.shortcuts import render
-from django.conf import settings
-from django.http import HttpResponse
-from django.http import JsonResponse
-from .models import Device, KasaDevice, DeviceSensor, SensorData
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
-from .forms import DeviceForm
-from tplinkcloud import TPLinkDeviceManager
-import requests
-import asyncio
-from kasa import Discover
 from datetime import datetime
-import pytz
+import asyncio
 import json
+import pytz
+import requests
 
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.views import APIView
 from django.shortcuts import render
+
+from .forms import DeviceForm
+from .models import Device, KasaDevice, DeviceSensor, SensorData
+from tplinkcloud import TPLinkDeviceManager
+from kasa import Discover
+
+
+
 
 def index(request):
     return render(request, 'smart_grow/index.html')
@@ -191,3 +196,14 @@ def sensor_data_list(request):
 
     return render(request, 'smart_grow/sensor_data_list.html', context)
 
+"""
+here we start our view for the DRF authentication 
+"""
+
+class MySecureView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        content = {'message': 'Hello, authenticated user!'}
+        return Response(content)
