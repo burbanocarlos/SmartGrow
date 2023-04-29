@@ -20,6 +20,8 @@ from django.contrib import admin
 urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     re_path('', include('smart_grow.urls')),
+    re_path('api/auth/', include('dj_rest_auth.urls')),
+    re_path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 
 
