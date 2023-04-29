@@ -1,0 +1,25 @@
+{% extends 'smart_grow/base.html' %}
+
+
+{% block content %}
+  <h1>Sensor Data</h1>
+  <table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Temperature (°C)</th>
+        <th>Humidity (%)</th>
+        <th>Timestamp (CST)</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for temp, humidity, timestamp in zipped_data %}
+        <tr>
+            <td>{{ temp }}°C</td>
+            <td>{{ humidity }}%</td>
+            <td>{{ timestamp }}</td>
+        </tr>
+    {% endfor %}
+    
+    </tbody>
+  </table>
+{% endblock %}

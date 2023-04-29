@@ -1,0 +1,14 @@
+{% extends 'smart_grow/base.html' %}
+
+{% block content %}
+  <h1>Kasa Devices List</h1>
+  <ul>
+    {% for device in kasa_devices %}
+      <li>
+        <h2>{{ device.alias }}</h2>
+        <p>Model: {{ device.device_model }}</p>
+        <p>Is On: {{ device.relay_state }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

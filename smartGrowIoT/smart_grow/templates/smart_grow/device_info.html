@@ -1,0 +1,13 @@
+{% extends 'smart_grow/base.html' %}
+
+{% block content %}
+  <h1>Device Information</h1>
+  {% if device_name %}
+    <p>Device Name: {{ device_name }}</p>
+    <p>Wi-Fi Status: {{ wifi_status }}</p>
+    <p>Current Temperature: {{ current_temperature }}°C</p>
+    <p>Current Humidity: {{ current_humidity }}%</p>
+  {% else %}
+    <p>The device is not available.</p>
+  {% endif %}
+{% endblock %}

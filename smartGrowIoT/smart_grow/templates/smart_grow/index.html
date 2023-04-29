@@ -1,0 +1,11 @@
+{% extends 'smart_grow/base.html' %}
+
+{% block content %}
+  <h1>Welcome to Smart Grow</h1>
+  <p>This is the home page for Smart Grow. Use the links below to navigate to different pages:</p>
+  <ul>
+    <li><a href="{% url 'smart_grow:kasa_devices' %}">Kasa Devices List</a></li>
+    <li><a href="{% url 'smart_grow:device_info' %}">Device Information</a></li>
+	<li><a href="{% url 'smart_grow:sensor_data_list' %}">Data Table</a></li>
+  </ul>
+{% endblock %}
