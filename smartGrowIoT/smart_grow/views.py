@@ -56,11 +56,6 @@ def device_info(request):
 """
 up to here 
 """
-#similarly, this will work for the devices details. 
-def device_detail(request, device_id):
-    device = get_object_or_404(Device, pk=device_id)
-    context = {'device': device}
-    return render(request, 'smart_grow/device_detail.html', context)
 """
 this is for the new way to fetching kasa devices, the other part will most leikely be deleted at some point
 this is acccesign the tp cloud api, this way even if we are not in the same network we can still control our
@@ -98,22 +93,6 @@ async def kasa_devices(request):
 """
 this ends the new way to fetch kasa devices
 """
-#display detail information about specific Kasa device
-def kasa_device_detail(request, kasa_device_id):
-    kasa_device = get_object_or_404(KasaDevice, pk=kasa_device_id)
-    context = {'kasa_device': kasa_device}
-    return render(request, 'smart_grow/kasa_device_detail.html', context)
-
-#display a form to add a new device to the system and handle the form submision
-def add_device(request):
-    if request.method == 'POST':
-        form = DeviceForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('devices_list')
-    else:
-        form = DeviceForm()
-    return render(request, 'smart_grow/add_device.html', {'form': form})
 
 #fetch sensor data from ThinkSpeak
 def fetch_sensor_data():
@@ -127,20 +106,6 @@ def fetch_sensor_data():
     else:
         return None
 
-#fetch information from KASA devices
-async def fetch_kasa_devices_async():
-    devices = await Discover.discover()
-    device_info = []
-
-    for device in devices.values():
-        await device.update()
-        device_info.append({
-            'alias': device.alias,
-            'model': device.model,
-            'is_on': device.is_on
-        })
-
-    return device_info
 
 #fetch the ip address of the esp32 board from thinkspeak 
 def fetch_ip_address():
@@ -156,15 +121,8 @@ def fetch_ip_address():
     else:
         return None
 
-def fetch_kasa_devices():
-    return asyncio.run(fetch_kasa_devices_async())
 
 from django.shortcuts import render
-from .models import SensorData, KasaDevice
-
-def kasa_devices_list(request):
-    kasa_devices = fetch_kasa_devices()
-    return render(request, 'smart_grow/kasa_devices_list.html', {'kasa_devices': kasa_devices})
 
 def sensor_data_list(request):
     sensor_data = fetch_sensor_data()
