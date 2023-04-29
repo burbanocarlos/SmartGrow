@@ -23,6 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'n1*qhh&rdx)f0wvhd2n=tj)dsq8^o8dbwj71!8g79s6q9z0wkt'
 TPLINK_USERNAME = 'burbanocarlos1000@gmail.com'
 TPLINK_PASSWORD = '33443123_Cb'
+LOGIN_URL = 'smart_grow:login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'smart_grow:login'  # or any other path you want to use after logging out
+
 
 
 # SECURITY WARNING: don't run with debug turned on in production!

@@ -6,21 +6,23 @@ import requests
 
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from django.shortcuts import render
 
 from .forms import DeviceForm
 from .models import Device, KasaDevice, DeviceSensor, SensorData
+from .decorators import async_login_required
 from tplinkcloud import TPLinkDeviceManager
 from kasa import Discover
 
 
 
-
+@login_required
 def index(request):
     return render(request, 'smart_grow/index.html')
 
@@ -36,6 +38,7 @@ def devices_list(request):
 """
 we are keeping this function 
 """
+@login_required
 def device_info(request):
     esp32_ip = fetch_ip_address()  # Replace with the IP address of your ESP32
     url = f"http://{esp32_ip}/device_info"
@@ -81,6 +84,7 @@ async def get_tplink_cloud_devices(device_manager):
     results = await asyncio.gather(*tasks)
     return results
 
+@async_login_required()
 async def kasa_devices(request):
     device_manager = TPLinkDeviceManager(TPLINK_USERNAME, TPLINK_PASSWORD) 
     devices = await get_tplink_cloud_devices(device_manager)
@@ -165,3 +169,10 @@ class MySecureView(APIView):
     def get(self, request, format=None):
         content = {'message': 'Hello, authenticated user!'}
         return Response(content)
+    
+
+# class PublicView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def get(self, request, format=None):
+#         # Your view logic here
