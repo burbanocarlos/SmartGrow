@@ -48,3 +48,9 @@ class SensorData(models.Model):
         return f"{self.sensor.name} - {self.value} - {self.timestamp}"
 
 
+class ClimateControlSettings(models.Model):
+    temperature_threshold = models.FloatField()
+    humidity_threshold = models.FloatField()
+
+
+

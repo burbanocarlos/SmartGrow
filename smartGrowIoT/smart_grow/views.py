@@ -14,7 +14,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django.shortcuts import render
 
-from .forms import DeviceForm
+from .forms import ClimateControlSettingsForm
+from .models import ClimateControlSettings
 from .models import Device, KasaDevice, DeviceSensor, SensorData
 from .decorators import async_login_required
 from tplinkcloud import TPLinkDeviceManager
@@ -83,6 +84,10 @@ async def get_tplink_cloud_devices(device_manager):
     tasks = [get_device_info(device) for device in devices]
     results = await asyncio.gather(*tasks)
     return results
+
+def get_tplink_device_manager():
+    return TPLinkDeviceManager(TPLINK_USERNAME, TPLINK_PASSWORD)
+
 
 @async_login_required()
 async def kasa_devices(request):
@@ -171,8 +176,20 @@ class MySecureView(APIView):
         return Response(content)
     
 
-# class PublicView(APIView):
-#     permission_classes = [AllowAny]
+"""
+here we start the climateControl functionality
+"""
 
-#     def get(self, request, format=None):
-#         # Your view logic here
+
+
+def update_climate_control_settings(request):
+    settings = ClimateControlSettings.objects.first()
+    form = ClimateControlSettingsForm(request.POST or None, instance=settings)
+    
+    if form.is_valid():
+        form.save()
+    
+    context = {'form': form}
+    return render(request, 'smart_grow/climate_control_settings.html', context)
+
+

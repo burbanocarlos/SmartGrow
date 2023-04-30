@@ -21,6 +21,7 @@ urlpatterns = [
     path('secure/', MySecureView.as_view(), name='secure'),
     path('login/', LoginView.as_view(template_name='smart_grow/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('climate-control-settings/', views.update_climate_control_settings, name='climate_control_settings'),
 
     
 ]
