@@ -4,6 +4,7 @@ import json
 import pytz
 import requests
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -88,17 +89,19 @@ async def get_tplink_cloud_devices(device_manager):
 def get_tplink_device_manager():
     return TPLinkDeviceManager(TPLINK_USERNAME, TPLINK_PASSWORD)
 
-
 @async_login_required()
-async def kasa_devices(request):
+async def async_kasa_devices(request):
     device_manager = TPLinkDeviceManager(TPLINK_USERNAME, TPLINK_PASSWORD) 
     devices = await get_tplink_cloud_devices(device_manager)
     devices_to_ignore = ["UNKNOWN", "KP303", "KP303CHILD"]
     device_info = [{"alias": device.get('alias'), "device_model": device.get('model_type'), "relay_state": device.get('sys_info', {}).get('relay_state')} for device in devices if device.get('model_type') not in devices_to_ignore and device.get('sys_info') is not None]
+    return device_info
 
+@async_login_required()
+async def kasa_devices(request):
+    device_info = await async_kasa_devices(request)
     context = {"kasa_devices": device_info}
     return render(request, "smart_grow/kasa_devices_api.html", context)
-
 """
 this ends the new way to fetch kasa devices
 """
@@ -179,11 +182,12 @@ class MySecureView(APIView):
 """
 here we start the climateControl functionality
 """
-#form that task user input for the thresholds.
-def update_climate_control_settings(request):
-    settings = ClimateControlSettings.objects.first()
+# @async_login_required()
+async def update_climate_control_settings(request):
+    settings = await sync_to_async(ClimateControlSettings.objects.first)()
     form = ClimateControlSettingsForm(request.POST or None, instance=settings)
-    
+    device_info = await async_kasa_devices(request)
+    print(device_info)
     success = False
     if form.is_valid():
         form.save()
@@ -192,7 +196,6 @@ def update_climate_control_settings(request):
 
     context = {'form': form, 'success': success}
     return render(request, 'smart_grow/climate_control_settings.html', context)
-
 
 def post_thresholds():
     settings = ClimateControlSettings.objects.first()
