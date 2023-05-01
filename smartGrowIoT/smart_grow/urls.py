@@ -5,6 +5,7 @@ from .views import MySecureView, APIView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import LogoutView
 
+
 from django.contrib.auth import views as auth_views
 from django.urls import re_path
 from django.contrib import admin
@@ -22,8 +23,8 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='smart_grow/login.html'), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('climate-control-settings/', views.update_climate_control_settings, name='climate_control_settings'),
-
-    
+    #path('api/thresholds/', get_thresholds, name='get_thresholds'),
+    path('kasa_devices2/', views.get_kasa_devices, name='get_kasa_devices'),
 ]
 
 

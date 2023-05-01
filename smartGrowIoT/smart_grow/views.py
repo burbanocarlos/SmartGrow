@@ -19,7 +19,7 @@ from .models import ClimateControlSettings
 from .models import Device, KasaDevice, DeviceSensor, SensorData
 from .decorators import async_login_required
 from tplinkcloud import TPLinkDeviceManager
-from kasa import Discover
+from firebase_admin import db
 
 
 
@@ -179,17 +179,40 @@ class MySecureView(APIView):
 """
 here we start the climateControl functionality
 """
-
-
-
+#form that task user input for the thresholds.
 def update_climate_control_settings(request):
     settings = ClimateControlSettings.objects.first()
     form = ClimateControlSettingsForm(request.POST or None, instance=settings)
     
+    success = False
     if form.is_valid():
         form.save()
-    
-    context = {'form': form}
+        post_thresholds()
+        success = True
+
+    context = {'form': form, 'success': success}
     return render(request, 'smart_grow/climate_control_settings.html', context)
 
 
+def post_thresholds():
+    settings = ClimateControlSettings.objects.first()
+    data = {
+        'temperature_threshold': settings.temperature_threshold,
+        'humidity_threshold': settings.humidity_threshold
+    }
+    # Set the trigger command in Firebase
+    threshols_ref = db.reference("/thresholds")
+    threshols_ref.set(data)
+
+
+#new fucntion to get kasa devices direclty from esp32 board
+def get_kasa_devices(request):
+    # Set the trigger command in Firebase
+    kasa_trigger_ref = db.reference("/trigger_kasa_devices")
+    kasa_trigger_ref.set(1)
+
+    # Read data from Firebase
+    kasa_devices_ref = db.reference("/kasa_devices2")
+    kasa_devices_data = kasa_devices_ref.get()
+
+    return JsonResponse(kasa_devices_data, safe=False)
