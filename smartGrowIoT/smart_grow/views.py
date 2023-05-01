@@ -11,13 +11,14 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django.shortcuts import render
 
 from .forms import ClimateControlSettingsForm
 from .models import ClimateControlSettings
-from .models import Device, KasaDevice, DeviceSensor, SensorData
+from .models import Device, SensorData
 from .decorators import async_login_required
 from tplinkcloud import TPLinkDeviceManager
 from firebase_admin import db
@@ -57,6 +58,19 @@ def device_info(request):
         context = {'message': 'Could not connect to device'}
     
     return render(request, 'smart_grow/device_info.html', context)
+
+@api_view(['POST'])
+def store_device_info(request):
+    data = request.data
+    device_id = data['device_id']
+    temperature = data['temperaure']
+    humidity = data['humidity']
+    time_stamp = data['time_stamp']
+
+    reading = SensorData(device_id=device_id, temperature=temperature, humidity=humidity, timestamp=time_stamp)
+    reading.save()
+
+    return Response({'status' : 'success'}, status=200)
 
 """
 up to here 
@@ -184,14 +198,15 @@ here we start the climateControl functionality
 """
 # @async_login_required()
 async def update_climate_control_settings(request):
+    
     settings = await sync_to_async(ClimateControlSettings.objects.first)()
-    form = ClimateControlSettingsForm(request.POST or None, instance=settings)
     device_info = await async_kasa_devices(request)
+    form = ClimateControlSettingsForm(request.POST or None, instance=settings, device_info=device_info)    
     print(device_info)
     success = False
     if form.is_valid():
-        form.save()
-        post_thresholds()
+        await sync_to_async(form.save)()
+        await sync_to_async(post_thresholds)()
         success = True
 
     context = {'form': form, 'success': success}
@@ -200,8 +215,14 @@ async def update_climate_control_settings(request):
 def post_thresholds():
     settings = ClimateControlSettings.objects.first()
     data = {
-        'temperature_threshold': settings.temperature_threshold,
-        'humidity_threshold': settings.humidity_threshold
+        'temperature' : {
+            'temperature_threshold': settings.temperature_threshold,
+            'device_1' : settings.device_1,
+        },
+        'humidity' : {
+            'humidity_threshold': settings.humidity_threshold,
+            'device_2' : settings.device_2
+            }
     }
     # Set the trigger command in Firebase
     threshols_ref = db.reference("/thresholds")

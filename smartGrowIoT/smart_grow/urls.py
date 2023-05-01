@@ -25,6 +25,7 @@ urlpatterns = [
     path('climate-control-settings/', views.update_climate_control_settings, name='climate_control_settings'),
     #path('api/thresholds/', get_thresholds, name='get_thresholds'),
     path('kasa_devices2/', views.get_kasa_devices, name='get_kasa_devices'),
-]
+    path('api/store_device_info', views.store_device_info, name='store_device_info')
+]   
 
 

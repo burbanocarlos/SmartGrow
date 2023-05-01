@@ -40,12 +40,14 @@ class DeviceSensor(models.Model):
         return f"{self.device.name} - {self.sensor.name}"
 
 class SensorData(models.Model):
+    device_id = models.ForeignKey(Device, on_delete=models.CASCADE)
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
-    value = models.FloatField()
+    temperature = models.FloatField()
+    humidity = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.sensor.name} - {self.value} - {self.timestamp}"
+        return f"{self.sensor.name} - {self.temperature} - {self.humidity} - {self.timestamp}"
 
 
 
