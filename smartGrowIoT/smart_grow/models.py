@@ -30,7 +30,7 @@ class KasaDevice(models.Model):
 
     def __str__(self):
         return self.name
-    
+#not sure it wwe will nee this one 
 class DeviceSensor(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
@@ -40,16 +40,14 @@ class DeviceSensor(models.Model):
         return f"{self.device.name} - {self.sensor.name}"
 
 class SensorData(models.Model):
-    device_id = models.ForeignKey(Device, on_delete=models.CASCADE)
-    sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
+    device_name = models.CharField(max_length=100, default="None")
+    sensor = models.CharField(max_length=100, default="none")
     temperature = models.FloatField()
     humidity = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.sensor.name} - {self.temperature} - {self.humidity} - {self.timestamp}"
-
-
 
 class ClimateControlSettings(models.Model):
     temperature_threshold = models.FloatField()

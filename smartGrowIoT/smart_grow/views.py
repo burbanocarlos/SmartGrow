@@ -1,85 +1,92 @@
+"""
+Contents:
+    • Index View
+    • Device-related views
+    • TP-Link Kasa device views
+    • DRF authentication view
+    • Climate Control functionality
+
+"""
+
 from datetime import datetime
 import asyncio
 import json
-import pytz
 import requests
 
+# Standard library imports
+from datetime import datetime
+import asyncio
+import json
+
+# Third-party imports
 from asgiref.sync import sync_to_async
-from django.conf import settings
 from django.http import HttpResponse, JsonResponse
+from django.conf import settings
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from django.shortcuts import render
-
-from .forms import ClimateControlSettingsForm
-from .models import ClimateControlSettings
-from .models import Device, SensorData
-from .decorators import async_login_required
+from rest_framework.permissions import IsAuthenticated
 from tplinkcloud import TPLinkDeviceManager
 from firebase_admin import db
 
+# Local imports
+from .forms import ClimateControlSettingsForm
+from .models import ClimateControlSettings, Device, SensorData
+from .decorators import async_login_required
 
-
+# ----------------------------
+# Index view
+# ----------------------------
 @login_required
 def index(request):
     return render(request, 'smart_grow/index.html')
 
-"""
-This view retrieves all the devices from the database, puts them in a 
-context dictionary, and renders a template called devices_list.html that
-will display the list of devices.
-"""
+# ----------------------------
+# Device-related views
+# ----------------------------
 def devices_list(request):
     devices = Device.objects.all()
     context = {'devices': devices}
     return render(request, 'smart_grow/devices_list.html', context)
-"""
-we are keeping this function 
-"""
+
 @login_required
 def device_info(request):
-    esp32_ip = fetch_ip_address()  # Replace with the IP address of your ESP32
-    url = f"http://{esp32_ip}/device_info"
-    try:
-        response = requests.get(url, timeout=2)
-        data = response.json()
+    data = SensorData.objects.first()
+    if data:
         context = {
-            'device_name': data['device_name'],
-            'wifi_status': data['wifi_status'],
-            'current_temperature': data['current_temperature'],
-            'current_humidity': data['current_humidity'],
-        }
-    except requests.exceptions.Timeout:
-        context = {'message': 'Could not connect to device'}
-    
+                'device_name': data.device_name,
+                'current_temperature': data.temperature,
+                'current_humidity': data.humidity,
+                'time_stamp' : data.timestamp
+            }
+    else:
+        context = {
+                'device_name': "None",
+                'current_temperature': "none",
+                'current_humidity': -1,
+                'time_stamp' : -1
+            }
     return render(request, 'smart_grow/device_info.html', context)
-
+    
 @api_view(['POST'])
 def store_device_info(request):
     data = request.data
-    device_id = data['device_id']
+    device_name = data['device_name']
     temperature = data['temperaure']
     humidity = data['humidity']
     time_stamp = data['time_stamp']
 
-    reading = SensorData(device_id=device_id, temperature=temperature, humidity=humidity, timestamp=time_stamp)
+    reading = SensorData(device_name=device_name, temperature=temperature, humidity=humidity, timestamp=time_stamp)
     reading.save()
 
     return Response({'status' : 'success'}, status=200)
 
-"""
-up to here 
-"""
-"""
-this is for the new way to fetching kasa devices, the other part will most leikely be deleted at some point
-this is acccesign the tp cloud api, this way even if we are not in the same network we can still control our
-devices
-"""
+# ----------------------------
+# TP-Link Kasa device views
+# ----------------------------
 TPLINK_USERNAME = settings.TPLINK_USERNAME
 TPLINK_PASSWORD = settings.TPLINK_PASSWORD
 
@@ -116,74 +123,10 @@ async def kasa_devices(request):
     device_info = await async_kasa_devices(request)
     context = {"kasa_devices": device_info}
     return render(request, "smart_grow/kasa_devices_api.html", context)
-"""
-this ends the new way to fetch kasa devices
-"""
 
-#fetch sensor data from ThinkSpeak
-def fetch_sensor_data():
-    api_key = 'EHN8P66QEUONM1NJ'
-    
-    channel_id = '2125746'
-    url = f'https://api.thingspeak.com/channels/{channel_id}/feeds.json?api_key={api_key}&results=10'
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
-
-
-#fetch the ip address of the esp32 board from thinkspeak 
-def fetch_ip_address():
-    api_key = 'EHN8P66QEUONM1NJ'
-    channel_id = '2125746'
-    url = f"https://api.thingspeak.com/channels/{channel_id}/fields/3/last.json?api_key={api_key}"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
-        ip_address = data["field3"]
-        return ip_address
-    else:
-        return None
-
-
-from django.shortcuts import render
-
-def sensor_data_list(request):
-    sensor_data = fetch_sensor_data()
-
-    if sensor_data:
-        # Extracting sensor values from JSON response
-        feeds = sensor_data['feeds']
-        temperature_values = [float(feed['field1']) for feed in feeds]
-
-        # Convert timestamp strings to datetime objects
-        utc_time_stamp = [datetime.strptime(feed['created_at'], '%Y-%m-%dT%H:%M:%SZ') for feed in feeds]
-
-        # Set timezone objects
-        utc = pytz.timezone('UTC')
-        cst = pytz.timezone('America/Chicago')
-
-        # Convert timestamps to Central Standard Time
-        time_stamp = [utc.localize(dt).astimezone(cst).strftime('%Y-%m-%d %H:%M:%S') for dt in utc_time_stamp]
-
-        humidity_values = [float(feed['field2']) for feed in feeds]
-
-        zipped_data = zip(temperature_values, humidity_values, time_stamp)
-
-        context = {
-            'zipped_data': zipped_data
-        }
-    else:
-        context = {}
-
-    return render(request, 'smart_grow/sensor_data_list.html', context)
-
-"""
-here we start our view for the DRF authentication 
-"""
-
+# ----------------------------
+# DRF authentication view
+# ----------------------------
 class MySecureView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -191,11 +134,10 @@ class MySecureView(APIView):
     def get(self, request, format=None):
         content = {'message': 'Hello, authenticated user!'}
         return Response(content)
-    
 
-"""
-here we start the climateControl functionality
-"""
+# ----------------------------
+# Climate Control functionality
+# ----------------------------
 # @async_login_required()
 async def update_climate_control_settings(request):
     
@@ -228,15 +170,13 @@ def post_thresholds():
     threshols_ref = db.reference("/thresholds")
     threshols_ref.set(data)
 
+def get_thresholds(request):
+    settings = ClimateControlSettings.objects.first()
+    data = {
+        'temperature_threshold': settings.temperature_threshold,
+        'humidity_threshold': settings.humidity_threshold,
+        'device_1' : settings.device_1,
+        'device_2' : settings.device_2
+    }
+    return JsonResponse(data)
 
-#new fucntion to get kasa devices direclty from esp32 board
-def get_kasa_devices(request):
-    # Set the trigger command in Firebase
-    kasa_trigger_ref = db.reference("/trigger_kasa_devices")
-    kasa_trigger_ref.set(1)
-
-    # Read data from Firebase
-    kasa_devices_ref = db.reference("/kasa_devices2")
-    kasa_devices_data = kasa_devices_ref.get()
-
-    return JsonResponse(kasa_devices_data, safe=False)
