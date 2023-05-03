@@ -1,4 +1,5 @@
-import org.jenkinsci.plugins.configfiles.ConfigFileProvider
+import org.jenkinsci.plugins.configfiles.ConfigFiles
+
 
 def config = new ConfigSlurper().parseText(
   new ConfigFileProvider().getFileContentsByName('local_settings.py')
