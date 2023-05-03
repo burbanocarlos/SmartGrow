@@ -1,0 +1,17 @@
+asgiref==3.6.0
+Django==4.2
+djangorestframework==3.14.0
+django-allauth==0.54.0
+dj-rest-auth==3.0.0
+firebase-admin==6.1.0
+google-api-core==2.11.0
+google-api-python-client==2.86.0
+google-auth==2.17.3
+google-cloud-firestore==2.11.1
+google-cloud-storage==2.8.0
+protobuf==4.22.3
+PyJWT==2.6.0
+python-dotenv==1.0.0
+pytz==2023.3
+requests==2.29.0
+
