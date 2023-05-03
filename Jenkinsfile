@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'python -m venv venv'
+                        sh '/Users/carlosburbano/.pyenv/shims/python3.9 -m venv venv'
                         sh 'source venv/bin/activate'
                     } else {
                         bat 'python -m venv venv'
