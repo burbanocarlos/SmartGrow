@@ -1,17 +1,3 @@
-import org.jenkinsci.plugins.configfiles.ConfigFiles
-import groovy.util.ConfigSlurper
-
-
-def config = new ConfigSlurper().parse(
-  new ConfigFileProvider().getFileContentsByName('local_settings.py')
-)
-
-environment {
-  SECRET_KEY = config.SECRET_KEY
-  TPLINK_USERNAME = config.TPLINK_USERNAME
-  TPLINK_PASSWORD = config.TPLINK_PASSWORD
-}
-
 pipeline {
     agent any
 
@@ -26,6 +12,13 @@ pipeline {
                         bat 'python -m venv venv'
                         bat 'call venv\\Scripts\\activate.bat'
                     }
+                }
+            }
+        }
+        stage('Copy local_settings.py') {
+            steps {
+                configFileProvider([configFile(fileId: 'local_settings.py', targetLocation: 'smartGrowIoT/local_settings.py')]) {
+                    // This step will copy the local_settings.py file to the smartGrowIoT directory
                 }
             }
         }
