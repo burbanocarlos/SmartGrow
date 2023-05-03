@@ -1,5 +1,5 @@
 import org.jenkinsci.plugins.configfiles.ConfigFiles
-import org.jenkinsci.plugins.configfiles.ConfigFileProvider
+import groovy.util.ConfigSlurper
 
 
 def config = new ConfigSlurper().parseText(
