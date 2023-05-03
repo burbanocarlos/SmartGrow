@@ -87,7 +87,7 @@ target/
 *.pyc
 __pycache__/
 local_settings.py
-
+local_Setting.py
 .env
 db.sqlite3
 smartgrow1000-firebase-adminsdk-oihbi-237773b2e0.json
