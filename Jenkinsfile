@@ -2,7 +2,7 @@ import org.jenkinsci.plugins.configfiles.ConfigFiles
 import groovy.util.ConfigSlurper
 
 
-def config = new ConfigSlurper().parseText(
+def config = new ConfigSlurper().parse(
   new ConfigFileProvider().getFileContentsByName('local_settings.py')
 )
 
