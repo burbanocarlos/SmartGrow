@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'pip install -r requirements.txt'
+                        sh 'venv/bin/pip install -r requirements.txt'
                     } else {
                         bat 'pip install -r requirements.txt'
                     }
@@ -30,9 +30,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'python manage.py migrate'
+                        sh 'venv/bin/python manage.py migrate'
                     } else {
-                        bat 'python manage.py migrate'
+                        bat 'venv\\Scripts\\python manage.py migrate'
                     }
                 }
             }
@@ -41,9 +41,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'python manage.py test'
+                        sh 'venv/bin/python manage.py test'
                     } else {
-                        bat 'python manage.py test'
+                        bat 'venv\\Scripts\\python manage.py test'
                     }
                 }
             }
