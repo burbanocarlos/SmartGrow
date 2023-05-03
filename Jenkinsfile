@@ -17,7 +17,7 @@ pipeline {
         }
         stage('Copy local_settings.py') {
             steps {
-                configFileProvider([configFile(fileId: 'local_settings.py', targetLocation: '/smartGrowIoT/smartGrowIoT/local_Setting.py')]) {
+                configFileProvider([configFile(fileId: '4ba70017-bf34-4252-bcaf-a5474b5b1d39', targetLocation: '/smartGrowIoT/smartGrowIoT/local_Setting.py')]) {
                     // This step will copy the local_settings.py file to the smartGrowIoT directory
                 }
             }
