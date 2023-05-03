@@ -30,9 +30,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'venv/bin/python manage.py migrate'
+                        sh 'venv/bin/python smartGrowIoT/manage.py migrate'
                     } else {
-                        bat 'venv\\Scripts\\python manage.py migrate'
+                        bat 'venv\\Scripts\\python smartGrowIoT\\manage.py migrate'
                     }
                 }
             }
@@ -41,9 +41,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'venv/bin/python manage.py test'
+                        sh 'venv/bin/python smartGrowIoT/manage.py test'
                     } else {
-                        bat 'venv\\Scripts\\python manage.py test'
+                        bat 'venv\\Scripts\\python smartGrowIoT\\manage.py test'
                     }
                 }
             }
