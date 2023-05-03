@@ -1,3 +1,13 @@
+def config = new ConfigSlurper().parseText(
+  new ConfigFileProvider().getFileContentsByName('local_settings.py')
+)
+
+environment {
+  SECRET_KEY = config.SECRET_KEY
+  TPLINK_USERNAME = config.TPLINK_USERNAME
+  TPLINK_PASSWORD = config.TPLINK_PASSWORD
+}
+
 pipeline {
     agent any
 

@@ -17,7 +17,7 @@ from datetime import timedelta
 import os
 import sys
 import firebase_setup
-from local_Setting import *
+from local_settings import *
 from dotenv import load_dotenv
 
 
