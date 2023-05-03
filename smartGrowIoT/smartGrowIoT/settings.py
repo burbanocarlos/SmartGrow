@@ -31,6 +31,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 TPLINK_USERNAME = os.environ.get('USERNAME')
 TPLINK_PASSWORD = os.environ.get('PASSWORD')
 
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 

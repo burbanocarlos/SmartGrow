@@ -3,7 +3,7 @@ import pyrebase
 from firebase_admin import credentials
 from firebase_admin import db
 
-cred = credentials.Certificate('/Users/carlosburbano/Documents/2023/Projects/SmartGrow/smartgrow1000-firebase-adminsdk-oihbi-237773b2e0.json')
+cred = credentials.Certificate('/Users/carlosburbano/Documents/2023/Projects/SmartGrow/smartgrow1000-firebase-adminsdk-oihbi-771f5e690d.json')
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://smartgrow1000-default-rtdb.firebaseio.com/'
 })
