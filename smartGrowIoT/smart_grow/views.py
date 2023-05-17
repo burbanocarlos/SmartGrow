@@ -5,18 +5,19 @@ Contents:
     • TP-Link Kasa device views
     • DRF authentication view
     • Climate Control functionality
-
 """
 
 from datetime import datetime
 import asyncio
 import json
+import os
 import requests
 
 # Standard library imports
 from datetime import datetime
 import asyncio
 import json
+
 
 # Third-party imports
 from asgiref.sync import sync_to_async
@@ -87,8 +88,8 @@ def store_device_info(request):
 # ----------------------------
 # TP-Link Kasa device views
 # ----------------------------
-TPLINK_USERNAME = settings.TPLINK_USERNAME
-TPLINK_PASSWORD = settings.TPLINK_PASSWORD
+TPLINK_USERNAME = os.environ.get('TPLINK_USERNAME')
+TPLINK_PASSWORD = os.environ.get('TPLINK_PASSWORD')
 
 async def get_device_info(device):
     device_data = {
